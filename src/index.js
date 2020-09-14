@@ -5,7 +5,8 @@ import morgan from "morgan";
 import cors from "cors";
 // const cors = require('cors');
 import path from "path";
-
+import productoRouter from './routes/productos.routes';
+import './database';
 
 //configuracion basica
 const app = express(); //creamos una instancia de express
@@ -28,9 +29,10 @@ app.use(express.urlencoded({extended:true}));
 //aqui agrego la carpeta public con los archivos estaticos
 app.use(express.static(path.join(__dirname, "../public")))
 
-app.get('/', (req, res) =>{
-    res.send("Hola Mundo")
-});
+// app.get('/', (req, res) =>{
+//     res.send("Hola Mundo")
+// });
+app.use('/api/cafeteria', productoRouter)
 
 app.get('/usuarios', (req, res)=>{
     res.send("estoy en la pagina de usuarios")
