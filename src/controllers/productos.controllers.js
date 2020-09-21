@@ -34,12 +34,12 @@ cafeteriaCtrl.crearProducto = async (req, res) => {
     }
 }
 
-cafeteriaCtrl.listarProductos = async (req, res) =>{
-    try{
+cafeteriaCtrl.listarProductos = async (req, res) => {
+    try {
         const datos = await Producto.find(); // aqui obtengo todos los productos de mi collection
         //responder al front end
         res.status(200).json(datos);
-    }catch(error){
+    } catch (error) {
         console.log(error);
         res.status(500).json({
             mensaje: "Ha ocurrido un error"
@@ -48,13 +48,13 @@ cafeteriaCtrl.listarProductos = async (req, res) =>{
 }
 
 cafeteriaCtrl.borrarProducto = async (req, res) => {
-    try{
+    try {
         console.log(req.params.id) // pruebo extraer el parametro id de la url
         await Producto.findByIdAndDelete(req.params.id);
         res.status(200).json({
             mensaje: "Borramos un producto"
         })
-    }catch(error){
+    } catch (error) {
         console.log(error);
         res.status(500).json({
             mensaje: "Ha ocurrido un error"
@@ -63,14 +63,44 @@ cafeteriaCtrl.borrarProducto = async (req, res) => {
 }
 
 cafeteriaCtrl.editarProducto = async (req, res) => {
-    try{
+    try {
         //validar la estructura de req.body antes de actualizar
 
         await Producto.findByIdAndUpdate(req.params.id, req.body)
         res.status(200).json({
             mensaje: "Se actualizó correctamente"
         })
-    }catch(error){
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({
+            mensaje: "Ha ocurrido un error"
+        })
+    }
+}
+
+cafeteriaCtrl.listarProductosPaginado = (req, res) => {
+    try {
+        const limite = parseInt(req.query.cantidad);
+        const salto = parseInt(req.query.paginaActual) * limite;
+
+        Producto.countDocuments(async (err, count) => {
+            await Producto.find({}, null, { skip: salto, limit: limite }, (error, productosFiltrados) => {
+                if (error) {
+                    res.status(500).json({
+                        mensaje: "Error al filtrar los productos"
+                    });
+                    return;
+                }
+                //si esta todo bien
+                res.status(200).json({
+                    mensaje: productosFiltrados,
+                    paginaActual: parseInt(req.query.paginaActual),
+                    totalPaginas: Math.ceil(count/limite)
+                })
+            })
+        })
+
+    } catch (error) {
         console.log(error);
         res.status(500).json({
             mensaje: "Ha ocurrido un error"
